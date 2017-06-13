@@ -96,8 +96,6 @@ void MainWindow::load_data()
     pub_.publish(output);
 
     // Make depthmap
-    cv::Mat depth_map = cv::Mat(kitti_data_.left_image().size(), CV_32F, cv::Scalar(0));
-
     Matrix3x4 P0 = kitti_data_.P0();
     Matrix3x4 P1 = kitti_data_.P1();
     Matrix3x4 P2 = kitti_data_.P2();
@@ -105,10 +103,14 @@ void MainWindow::load_data()
     Matrix3x4 Tr = kitti_data_.Tr();
 
     cv::Mat left_cvimg = kitti_data_.left_color_image();
+    cv::Mat resized_img;
     cv::Mat show_img;
 
-    double scale = 0.2;
+    double scale = 0.2;//0.2;
     cv::resize(left_cvimg, show_img, cv::Size(), scale, scale);
+    cv::resize(left_cvimg, resized_img, cv::Size(), scale, scale);
+
+    cv::Mat depth_map = cv::Mat(show_img.size(), CV_32F, cv::Scalar(0));
 
     for (auto iter = kitti_data_.velodyne_data().begin(); iter != kitti_data_.velodyne_data().end(); ++iter) {
 
@@ -124,7 +126,7 @@ void MainWindow::load_data()
         int u = static_cast<int> (round(uv(0)));
         int v = static_cast<int> (round(uv(1)));
 
-        if (u > 0 && u < kitti_data_.left_image().cols && v > 0 && v < kitti_data_.left_image().rows && XYZ(2) > 0) {
+        if (u > 0 && u < show_img.cols && v > 0 && v < show_img.rows && XYZ(2) > 0) {
             depth_map.at<float> (v, u) = XYZ(2);
             cv::circle(show_img, cv::Point(u, v), 0.1, cv::Scalar(0, 0, 255), -1);
         }
@@ -135,6 +137,18 @@ void MainWindow::load_data()
     cv::namedWindow("test", cv::WINDOW_NORMAL);
     cv::imshow("test", show_img);
     cv::waitKey(1);
+
+    depth_map.convertTo(depth_map, CV_16UC1, 1000.0);
+
+    QString depthmap_fname = "d_" + QString::number(index_manager.index())+".png";
+    QString resized_fname = QString::number(index_manager.index())+".png";
+
+    cv::Rect rect(0, 27, resized_img.cols, resized_img.rows-27);
+
+    cv::imwrite(depthmap_fname.toStdString(), depth_map(rect));
+    cv::imwrite(resized_fname.toStdString(), resized_img(rect));
+
+
 
 }
 
