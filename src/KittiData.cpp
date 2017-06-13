@@ -11,7 +11,7 @@ using namespace std;
 
 KittiData::KittiData()
 {
-
+    str_seq_ = "00";
 }
 
 KittiData::KittiData(QString path)

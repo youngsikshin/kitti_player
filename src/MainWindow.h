@@ -64,6 +64,7 @@ private:
 
     int delay_ms_;
 
+    void initialize();
     void reset_sequence();
     void load_data();
 //    inline const QString& sequence_path() { return data_path_+"sequences/"+str_seq_+"/"; }

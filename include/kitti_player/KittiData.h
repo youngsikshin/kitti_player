@@ -24,7 +24,10 @@ public:
     KittiData(QString path);
     ~KittiData();
 
+    void path(QString path) { path_ = path; }
+    QString path() { return path_; }
     void set_sequence(QString str_seq);
+
     QString seq_path() { return path_+"sequences/"+str_seq_+"/"; }
     QString gt_path() { return path_+"poses/"; }
     QString gt_fname() { return gt_path()+str_seq_+".txt"; }

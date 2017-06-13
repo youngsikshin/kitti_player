@@ -1,19 +1,27 @@
+#include <string>
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 //#include "odomproblem.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow), data_path_("/var/data/kitti/dataset/"), kitti_data_(data_path_)
+    ui(new Ui::MainWindow), kitti_data_()
 {
     ui->setupUi(this);
-
-    ui->pathLabel->setText(data_path_);
 
     // QTimer initialization
     timer_ = new QTimer(this);
     connect(timer_, SIGNAL(timeout()), this, SLOT(onTimer()));
     timer_->stop();
+
+}
+
+void MainWindow::initialize()
+{
+    kitti_data_.path(data_path_);
+
+    ui->pathLabel->setText(data_path_);
+    cout << "1" << endl;
 
     // set initial velodyne layer
     ui->layerSelector64->setChecked(true);
@@ -26,8 +34,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
 {
+    std::string path;
+    private_nh.param("path", path, std::string("/var/data/kitti/dataset/"));
+
+    data_path_ = QString::fromStdString(path);
+
+    initialize();
+
     this->nh_ = node;
     pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/kitti/velodyne_points", 10);
+
 //    camlidar_calib_.reset(new camlidar::CamLidarCalib(node, private_nh));
 //    connect(camlidar_calib_.get(), SIGNAL(image_signal()), this, SLOT(set_pixmap()));
 //    camlidar_thread_ = std::thread(&camlidar::CamLidarCalib::run, camlidar_calib_);
@@ -143,10 +159,10 @@ void MainWindow::load_data()
     QString depthmap_fname = "d_" + QString::number(index_manager.index())+".png";
     QString resized_fname = QString::number(index_manager.index())+".png";
 
-    cv::Rect rect(0, 27, resized_img.cols, resized_img.rows-27);
+//    cv::Rect rect(0, 27, resized_img.cols, resized_img.rows-27);
 
-    cv::imwrite(depthmap_fname.toStdString(), depth_map(rect));
-    cv::imwrite(resized_fname.toStdString(), resized_img(rect));
+    cv::imwrite(depthmap_fname.toStdString(), depth_map);
+    cv::imwrite(resized_fname.toStdString(), resized_img);
 
 
 
@@ -197,16 +213,16 @@ void MainWindow::on_startButton_clicked()
 {
 
     if(!ui->startButton->text().compare("play")) {
+        ui->startButton->setText("stop");
+
         delay_ms_ = static_cast<int> (kitti_data_.get_time_diff(index_manager.index())*1000);
         timer_->start(delay_ms_);
 
         load_data();
-
-        ui->startButton->setText("stop");
     }
     else if(!ui->startButton->text().compare("stop")) {
-        timer_->stop();
         ui->startButton->setText("play");
+        timer_->stop();
     }
 
 }

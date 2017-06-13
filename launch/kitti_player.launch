@@ -1,0 +1,7 @@
+<launch>
+  <arg name="path" default="/var/data/kitti/dataset/"/>
+  <!-- Node -->
+  <node pkg="kitti_player" type="kitti_player" name="kitti_player">
+    <param name="path" type="string" value="$(arg path)"/>
+  </node>
+</launch>
