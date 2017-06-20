@@ -7,6 +7,11 @@
 #include <QTimer>
 
 #include <ros/ros.h>
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <dynamic_reconfigure/server.h>
+#include <kitti_player/kitti_playerConfig.h>
+
 #include <kitti_player/KittiData.h>
 #include <kitti_player/Datatypes.h>
 
@@ -63,10 +68,20 @@ private:
     KittiData kitti_data_;
 
     int delay_ms_;
+    double speed_;
+
+    ///Pointer to dynamic reconfigure service srv_
+    dynamic_reconfigure::Server<kitti_player::kitti_playerConfig> server_;
+    dynamic_reconfigure::Server<kitti_player::kitti_playerConfig>::CallbackType f_;
+    kitti_player::kitti_playerConfig config_;
+
+    void dynamic_parameter_callback(kitti_player::kitti_playerConfig &config, uint32_t level);
+
 
     void initialize();
     void reset_sequence();
     void load_data();
+
 //    inline const QString& sequence_path() { return data_path_+"sequences/"+str_seq_+"/"; }
 //    inline const QString& gt_fname() { return data_path_+"poses/"+str_seq_+".txt"; }
 //    camlidar::CamLidarCalib::Ptr camlidar_calib_;
@@ -74,8 +89,24 @@ private:
 
     QPixmap image_;
 
+    std::string str_path_;
+    std::string str_left_topic_;
+    std::string str_right_topic_;
+    std::string str_left_color_topic_;
+    std::string str_right_color_topic_;
+
     ros::NodeHandle nh_;
-    ros::Publisher pub_;
+    ros::Publisher pc_pub_;
+
+    image_transport::ImageTransport *it_;
+    image_transport::Publisher left_img_pub_;
+    image_transport::Publisher right_img_pub_;
+    image_transport::Publisher left_color_img_pub_;
+    image_transport::Publisher right_color_img_pub_;
+
+    void publish_image(image_transport::Publisher& img_pub, cv::Mat img);
+
+
 
 private slots:
     void set_pixmap();

@@ -3,8 +3,6 @@
 
 #include <Eigen/Core>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 
 typedef double NumType;
 typedef Eigen::Matrix<NumType, 3, 4> Matrix3x4;

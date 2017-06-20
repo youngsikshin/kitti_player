@@ -16,13 +16,14 @@ set (SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(CMAKE_AUTOMOC ON)
 
 find_package(catkin REQUIRED COMPONENTS
-  dynamic_reconfigure
   roscpp
   std_msgs
   pcl_ros
   pcl_conversions
   image_transport
   cv_bridge
+  message_generation
+  dynamic_reconfigure
 )
 
 find_package (Qt5Widgets)
@@ -111,6 +112,9 @@ find_package (OpenCV)
 #   cfg/DynReconf1.cfg
 #   cfg/DynReconf2.cfg
 # )
+generate_dynamic_reconfigure_options(
+  cfg/kitti_player.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -125,7 +129,10 @@ find_package (OpenCV)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES kitti-player
-  CATKIN_DEPENDS dynamic_reconfigure roscpp std_msgs
+  CATKIN_DEPENDS
+    dynamic_reconfigure
+    roscpp
+    std_msgs
     pcl_ros
     pcl_conversions
     image_transport

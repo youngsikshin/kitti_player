@@ -43,8 +43,8 @@ public:
 
     PointCloud& velodyne_data() { return velodyne_data_; }
 
-    void set_left_image(int i) { left_image_ = cv::imread(get_abs_path(flist_left_image_, i).toStdString()); }
-    void set_right_image(int i) { right_image_ = cv::imread(get_abs_path(flist_right_image_, i).toStdString()); }
+    void set_left_image(int i) { left_image_ = cv::imread(get_abs_path(flist_left_image_, i).toStdString(),CV_LOAD_IMAGE_GRAYSCALE); }
+    void set_right_image(int i) { right_image_ = cv::imread(get_abs_path(flist_right_image_, i).toStdString(),CV_LOAD_IMAGE_GRAYSCALE); }
     void set_left_color_image(int i) { left_color_image_ = cv::imread(get_abs_path(flist_left_color_image_, i).toStdString()); }
     void set_right_color_image(int i) { right_color_image_ = cv::imread(get_abs_path(flist_right_color_image_, i).toStdString()); }
 
