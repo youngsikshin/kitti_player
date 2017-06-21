@@ -61,19 +61,21 @@ void KittiData::set_sequence(QString str_seq)
     }
 
     // Read ground truth poses
-    QFile gt_poses(gt_fname_);
-    if (!gt_poses.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
+    if(str_seq.toInt() < 10) {
+        QFile gt_poses(gt_fname_);
+        if (!gt_poses.open(QIODevice::ReadOnly | QIODevice::Text))
+            return;
 
-    QTextStream poses_stream(&gt_poses);
-    while (!poses_stream.atEnd()) {
-        QString line = poses_stream.readLine();
-        QStringList list = line.split(" ");
-        QMatrix4x4 Tgt(list[0].toDouble(), list[1].toDouble(), list[2].toDouble(), list[3].toDouble(),
-                       list[4].toDouble(), list[5].toDouble(), list[6].toDouble(), list[7].toDouble(),
-                       list[8].toDouble(), list[9].toDouble(), list[10].toDouble(), list[11].toDouble(),
-                       0,    0,    0,    1);
-        poses_.push_back(Tgt);
+        QTextStream poses_stream(&gt_poses);
+        while (!poses_stream.atEnd()) {
+            QString line = poses_stream.readLine();
+            QStringList list = line.split(" ");
+            QMatrix4x4 Tgt(list[0].toDouble(), list[1].toDouble(), list[2].toDouble(), list[3].toDouble(),
+                           list[4].toDouble(), list[5].toDouble(), list[6].toDouble(), list[7].toDouble(),
+                           list[8].toDouble(), list[9].toDouble(), list[10].toDouble(), list[11].toDouble(),
+                           0,    0,    0,    1);
+            poses_.push_back(Tgt);
+        }
     }
 
     // Read Calibration Parameter

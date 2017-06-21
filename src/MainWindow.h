@@ -114,7 +114,8 @@ private:
     image_transport::Publisher left_color_img_pub_;
     image_transport::Publisher right_color_img_pub_;
 
-    void publish_image(image_transport::Publisher& img_pub, cv::Mat img);
+    void publish_image(image_transport::Publisher& img_pub, cv::Mat& img);
+    void publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc);
 
 
 

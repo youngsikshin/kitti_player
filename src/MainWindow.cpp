@@ -15,6 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     timer_->stop();
 
     speed_ =1.0;
+
+    is_left_color_image_pub_ = false;
+    is_right_color_image_pub_ = false;
 }
 
 void MainWindow::initialize()
@@ -43,9 +46,11 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
 
     private_nh.param("left_image_pub", is_left_image_pub_, true);
     private_nh.param("right_image_pub", is_right_image_pub_, true);
-    private_nh.param("left_color_image_pub", is_left_color_image_pub_, true);
-    private_nh.param("right_color_image_pub", is_right_color_image_pub_, true);
+    private_nh.param("left_color_image_pub", is_left_color_image_pub_, false);
+    private_nh.param("right_color_image_pub", is_right_color_image_pub_, false);
     private_nh.param("velodyne_pub", is_velodyne_pub_, true);
+
+    cout << "left_color: " << is_left_color_image_pub_ << endl;
 
     data_path_ = QString::fromStdString(str_path_);
 
@@ -113,37 +118,52 @@ void MainWindow::load_data()
     if(ui->layerSelector64->isChecked()) kitti_data_.velodyne_layer(Layer64);
     if(ui->layerSelector16->isChecked()) kitti_data_.velodyne_layer(Layer16);
 
-    kitti_data_.set_left_image(index_manager.index());
-    kitti_data_.set_right_image(index_manager.index());
-    kitti_data_.set_left_color_image(index_manager.index());
-    kitti_data_.set_right_color_image(index_manager.index());
+    // Setting data and Publish
+    if(is_left_image_pub_) {
+        kitti_data_.set_left_image(index_manager.index());
+        publish_image(left_img_pub_, kitti_data_.left_image());
+    }
 
-    kitti_data_.set_velodyne(index_manager.index());
+    if(is_right_image_pub_) {
+        kitti_data_.set_right_image(index_manager.index());
+        publish_image(right_img_pub_, kitti_data_.right_image());
+    }
+
+    if(is_left_color_image_pub_) {
+        kitti_data_.set_left_color_image(index_manager.index());
+        publish_image(left_color_img_pub_, kitti_data_.left_color_image());
+    }
+    if(is_right_color_image_pub_) {
+        kitti_data_.set_right_color_image(index_manager.index());
+        publish_image(right_color_img_pub_, kitti_data_.right_color_image());
+    }
+
+    if(is_velodyne_pub_) {
+        kitti_data_.set_velodyne(index_manager.index());
+        publish_velodyne(pc_pub_, kitti_data_.velodyne_data());
+    }
 
     // progress slider
     ui->dataProgress->setValue(index_manager.index());
 
     // For visualization
-    QPixmap left_image;
-    QImage left_qimage = KittiData::cv_mat_to_qimage(kitti_data_.left_color_image());
-    left_image.convertFromImage(left_qimage);
+    QPixmap vis_image;
 
-    ui->imageLabel->setPixmap(left_image.scaledToWidth(ui->imageLabel->width()));
 
-    // ROS publish
-    // publish left, right, left_color, right_color image
-    publish_image(left_img_pub_, kitti_data_.left_image());
-    publish_image(right_img_pub_, kitti_data_.right_image());
-    publish_image(left_color_img_pub_, kitti_data_.left_color_image());
-    publish_image(right_color_img_pub_, kitti_data_.right_color_image());
+    QImage left_qimage;
 
-    sensor_msgs::PointCloud2 out_pc;
-    pcl::toROSMsg(kitti_data_.velodyne_data(), out_pc);
+    if(is_left_color_image_pub_)
+        left_qimage = KittiData::cv_mat_to_qimage(kitti_data_.left_color_image());
+    else if(is_right_color_image_pub_)
+        left_qimage = KittiData::cv_mat_to_qimage(kitti_data_.right_color_image());
+    else if(is_left_image_pub_)
+        left_qimage = KittiData::cv_mat_to_qimage(kitti_data_.left_image());
+    else
+        left_qimage = KittiData::cv_mat_to_qimage(kitti_data_.right_image());
 
-    out_pc.header.seq = index_manager.index();
-    out_pc.header.stamp = ros::Time::now();
-    out_pc.header.frame_id = "velodyne";
-    pc_pub_.publish(out_pc);
+    vis_image.convertFromImage(left_qimage);
+
+    ui->imageLabel->setPixmap(vis_image.scaledToWidth(ui->imageLabel->width()));
 
     // increase index
     index_manager.inc();
@@ -201,7 +221,8 @@ void MainWindow::load_data()
 //    cv::imwrite(resized_fname.toStdString(), resized_img);
 
 }
-void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat img)
+
+void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img)
 {
     cv_bridge::CvImage cv_image;
     cv_image.header.seq = index_manager.index();
@@ -216,6 +237,18 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat img)
 
     img_pub.publish(cv_image.toImageMsg());
 }
+
+void MainWindow::publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc)
+{
+    sensor_msgs::PointCloud2 out_pc;
+    pcl::toROSMsg(pc, out_pc);
+
+    out_pc.header.seq = index_manager.index();
+    out_pc.header.stamp = ros::Time::now();
+    out_pc.header.frame_id = "velodyne";
+    pc_pub_.publish(out_pc);
+}
+
 void MainWindow::set_pixmap()
 {
 ////    cerr << "[MainWindow]\t Called set_pixmap()" << endl;
