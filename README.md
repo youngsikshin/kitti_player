@@ -2,6 +2,15 @@
 
 This rpository has source code for publishing kitti odometry datasets to ros topic. This allows you to adjust the publish speed and publish the 64-player velodyne data by changing it to 16layer.
 
+## Installation
+
+```
+cd ~/catkin_ws/src
+git clone https://github.com/youngsikshin/kitti_player.git
+cd ~/catkin_ws
+catkin_make
+```
+
 ## Usage
 
 Running with default parameters
