@@ -15,10 +15,6 @@ MainWindow::MainWindow(QWidget *parent) :
     timer_->stop();
 
     speed_ =1.0;
-
-    f_ = boost::bind(&MainWindow::dynamic_parameter_callback, this, _1, _2);
-    server_.setCallback(f_);
-
 }
 
 void MainWindow::initialize()
@@ -43,13 +39,13 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
     private_nh.param("right_topic", str_right_topic_, std::string("/kitti/right_image"));
     private_nh.param("left_color_topic", str_left_color_topic_, std::string("/kitti/left_color_image"));
     private_nh.param("right_color_topic", str_right_color_topic_, std::string("/kitti/right_color_image"));
-    private_nh.param("speed", speed_, 1.0);
+    private_nh.param("velodyne_topic", str_velodyne_topic_, std::string("/kitti/velodyne_points"));
 
-    cout << "param1: " << str_path_ << endl;
-    cout << "param2: " << str_left_topic_ << endl;
-    cout << "param3: " << str_right_topic_ << endl;
-    cout << "param4: " << str_left_color_topic_ << endl;
-    cout << "param5: " << str_right_color_topic_ << endl;
+    private_nh.param("left_image_pub", is_left_image_pub_, true);
+    private_nh.param("right_image_pub", is_right_image_pub_, true);
+    private_nh.param("left_color_image_pub", is_left_color_image_pub_, true);
+    private_nh.param("right_color_image_pub", is_right_color_image_pub_, true);
+    private_nh.param("velodyne_pub", is_velodyne_pub_, true);
 
     data_path_ = QString::fromStdString(str_path_);
 
@@ -57,14 +53,18 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
 
     this->nh_ = node;
 
-
-    pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("/kitti/velodyne_points", 10);
-
     it_ = new image_transport::ImageTransport(nh_);
     left_img_pub_ = it_->advertise(str_left_topic_, 10);
     right_img_pub_ = it_->advertise(str_right_topic_, 10);
     left_color_img_pub_ = it_->advertise(str_left_color_topic_, 10);
     right_color_img_pub_ = it_->advertise(str_right_color_topic_, 10);
+
+    pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(str_velodyne_topic_, 10);
+
+    f_ = boost::bind(&MainWindow::dynamic_parameter_callback, this, _1, _2);
+    server_.setCallback(f_);
+
+    spin_thread_ = std::thread(&MainWindow::spinner,this);
 
 //    camlidar_calib_.reset(new camlidar::CamLidarCalib(node, private_nh));
 //    connect(camlidar_calib_.get(), SIGNAL(image_signal()), this, SLOT(set_pixmap()));
@@ -73,18 +73,15 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
 
 void MainWindow::dynamic_parameter_callback(kitti_player::kitti_playerConfig &config, uint32_t level)
 {
-    cout << config.speed << endl;
-//    speed_ = config.speed;
+    speed_ = config.speed;
 
-//    cout << "set speed: " << speed_ << endl;
-
-//    timer_->stop();
+    ui->startButton->setText("play");
 }
 
 MainWindow::~MainWindow()
 {
     ros::shutdown();
-//    camlidar_thread_.join();
+    spin_thread_.join();
     delete ui;
 }
 
@@ -243,6 +240,8 @@ void MainWindow::set_pixmap()
 void MainWindow::onTimer()
 {
     load_data();
+
+    if(!ui->startButton->text().compare("play"))  timer_->stop();
 }
 
 void MainWindow::on_comboBox_currentIndexChanged(int index)

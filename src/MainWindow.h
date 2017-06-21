@@ -71,6 +71,9 @@ private:
     double speed_;
 
     ///Pointer to dynamic reconfigure service srv_
+    std::thread spin_thread_;
+    void spinner() { ros::spin(); }
+
     dynamic_reconfigure::Server<kitti_player::kitti_playerConfig> server_;
     dynamic_reconfigure::Server<kitti_player::kitti_playerConfig>::CallbackType f_;
     kitti_player::kitti_playerConfig config_;
@@ -94,6 +97,13 @@ private:
     std::string str_right_topic_;
     std::string str_left_color_topic_;
     std::string str_right_color_topic_;
+    std::string str_velodyne_topic_;
+
+    bool is_left_image_pub_;
+    bool is_right_image_pub_;
+    bool is_left_color_image_pub_;
+    bool is_right_color_image_pub_;
+    bool is_velodyne_pub_;
 
     ros::NodeHandle nh_;
     ros::Publisher pc_pub_;
