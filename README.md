@@ -51,4 +51,4 @@ And kitti_player needs a directory tree like the following:
 ## TODO
 
 * Publish GT poses
-* Selected Publish data
+* Select sensor data to publish
