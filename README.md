@@ -30,23 +30,22 @@ KITTI odometry datasets can be downloaded from http://www.cvlibs.net/datasets/ki
 And kitti_player needs a directory tree like the following: 
 
 └── dataset
-│ └── poses
-│ └ 00.txt
-│ └ ...
-│ └ 10.txt
-│
-├── sequences
-│ └── 00
-│ │ └── image_0
-│ │ └── image_1
-│ │ └── image_2
-│ │ └── image_3
-│ │ └── velodyne
-│ │ └── times.txt
-│ │ └── calib.txt
-│ └── 01 (Subdirectory has same structure as above)
-│ └── ...
-│ └── 21
+    └── poses
+    │ └ 00.txt
+    │ └ ...
+    │ └ 10.txt
+    ├── sequences
+    │ └── 00
+    │ │ └── image_0
+    │ │ └── image_1
+    │ │ └── image_2
+    │ │ └── image_3
+    │ │ └── velodyne
+    │ │ └── times.txt
+    │ │ └── calib.txt
+    │ └── 01 (Subdirectory has same structure as above)
+    │ └── ...
+    └─└── 21
 
 ## TODO
 
