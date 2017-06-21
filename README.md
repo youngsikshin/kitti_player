@@ -28,7 +28,7 @@ roslaunch kitti_player kitti_player kitti_player.launch
 KITTI odometry datasets can be downloaded from http://www.cvlibs.net/datasets/kitti/eval_odometry.php
 
 And kitti_player needs a directory tree like the following: 
-
+```
 └── dataset
     └── poses
     │ └ 00.txt
@@ -46,6 +46,7 @@ And kitti_player needs a directory tree like the following:
     │ └── 01 (Subdirectory has same structure as above)
     │ └── ...
     └─└── 21
+```
 
 ## TODO
 
