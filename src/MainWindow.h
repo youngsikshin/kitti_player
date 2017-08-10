@@ -117,6 +117,7 @@ private:
     void publish_image(image_transport::Publisher& img_pub, cv::Mat& img);
     void publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc);
 
+    ros::Time sync_time_;
 
 
 private slots:

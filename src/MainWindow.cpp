@@ -50,7 +50,7 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
     private_nh.param("right_color_image_pub", is_right_color_image_pub_, false);
     private_nh.param("velodyne_pub", is_velodyne_pub_, true);
 
-    cout << "left_color: " << is_left_color_image_pub_ << endl;
+//    cout << "left_color: " << is_left_color_image_pub_ << endl;
 
     data_path_ = QString::fromStdString(str_path_);
 
@@ -113,6 +113,8 @@ void MainWindow::reset_sequence()
 
 void MainWindow::load_data()
 {
+    sync_time_ = ros::Time::now();
+
     if(index_manager.index() >= kitti_data_.data_length()) return;
 
     if(ui->layerSelector64->isChecked()) kitti_data_.velodyne_layer(Layer64);
@@ -226,7 +228,8 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img
 {
     cv_bridge::CvImage cv_image;
     cv_image.header.seq = index_manager.index();
-    cv_image.header.stamp = ros::Time::now();
+//    cv_image.header.stamp = ros::Time::now();
+    cv_image.header.stamp = sync_time_;
     cv_image.header.frame_id = "kitti";
     if(img.type() == CV_8UC1)
         cv_image.encoding = sensor_msgs::image_encodings::MONO8;
@@ -244,7 +247,8 @@ void MainWindow::publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc)
     pcl::toROSMsg(pc, out_pc);
 
     out_pc.header.seq = index_manager.index();
-    out_pc.header.stamp = ros::Time::now();
+//    out_pc.header.stamp = ros::Time::now();
+    out_pc.header.stamp = sync_time_;
     out_pc.header.frame_id = "velodyne";
     pc_pub_.publish(out_pc);
 }
@@ -303,11 +307,11 @@ void MainWindow::on_startButton_clicked()
 
         timer_->start(scaled_time);
 
-        load_data();
+//        load_data();
     }
     else if(!ui->startButton->text().compare("stop")) {
         ui->startButton->setText("play");
-        timer_->stop();
+//        timer_->stop();
     }
 
 }
