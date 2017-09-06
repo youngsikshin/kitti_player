@@ -98,12 +98,14 @@ private:
     std::string str_left_color_topic_;
     std::string str_right_color_topic_;
     std::string str_velodyne_topic_;
+    std::string str_depth_map_topic_;
 
     bool is_left_image_pub_;
     bool is_right_image_pub_;
     bool is_left_color_image_pub_;
     bool is_right_color_image_pub_;
     bool is_velodyne_pub_;
+    bool is_depth_map_pub_;
 
     ros::NodeHandle nh_;
     ros::Publisher pc_pub_;
@@ -113,6 +115,7 @@ private:
     image_transport::Publisher right_img_pub_;
     image_transport::Publisher left_color_img_pub_;
     image_transport::Publisher right_color_img_pub_;
+    image_transport::Publisher depth_map_pub_;
 
     void publish_image(image_transport::Publisher& img_pub, cv::Mat& img);
     void publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc);
