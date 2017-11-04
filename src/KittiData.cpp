@@ -185,7 +185,7 @@ void KittiData::read_velodyne(QString fname)
             }
             else {
                 if((azimuth - prev_azimuth) < -0.2) {
-                    if(cnt%4 == 0) {
+                    if(cnt%8 == 0) {
                         velodyne_data_  += single_layer;
                     }
                     cnt++;

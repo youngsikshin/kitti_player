@@ -1,0 +1,36 @@
+<launch>
+  <arg name="data_path" default="/var/data/kitti/dataset/"/>
+
+  <arg name="left_topic" default="/kitti/left_image"/>
+  <arg name="right_topic" default="/kitti/right_image"/>
+  <arg name="left_color_topic" default="/kitti/left_color_image"/>
+  <arg name="right_color_topic" default="/kitti/right_color_image"/>
+  <arg name="velodyne_topic" default="/kitti/velodyne_points"/>
+  <arg name="depth_map_topic" default="/kitti/depthmap"/>
+
+  <arg name="left_image_pub" default="true"/>
+  <arg name="right_image_pub" default="false"/>
+  <arg name="left_color_image_pub" default="false"/>
+  <arg name="right_color_image_pub" default="false"/>
+  <arg name="velodyne_pub" default="true"/>
+  <arg name="depth_map_pub" default="false"/>
+
+  <!-- Node -->
+  <node pkg="kitti_player" type="kitti_player" name="kitti_player">
+    <param name="data_path" type="string" value="$(arg data_path)"/>
+
+    <param name="left_topic" type="string" value="$(arg left_topic)"/>
+    <param name="right_topic" type="string" value="$(arg right_topic)"/>
+    <param name="left_color_topic" type="string" value="$(arg left_color_topic)"/>
+    <param name="right_color_topic" type="string" value="$(arg right_color_topic)"/>
+    <param name="velodyne_topic" type="string" value="$(arg velodyne_topic)"/>
+    <param name="depth_map_topic" type="string" value="$(arg depth_map_topic)"/>
+
+    <param name="left_image_pub" type="bool" value="$(arg left_image_pub)"/>
+    <param name="right_image_pub" type="bool" value="$(arg right_image_pub)"/>
+    <param name="left_color_image_pub" type="bool" value="$(arg left_color_image_pub)"/>
+    <param name="right_color_image_pub" type="bool" value="$(arg right_color_image_pub)"/>
+    <param name="velodyne_pub" type="bool" value="$(arg velodyne_pub)"/>
+    <param name="depth_map_pub" type="bool" value="$(arg depth_map_pub)"/>
+  </node>
+</launch>
