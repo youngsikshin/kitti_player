@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>267</height>
+    <width>770</width>
+    <height>224</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>KITTI Player</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -29,30 +32,21 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="pathLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
+      <property name="spacing">
+       <number>0</number>
+      </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QLabel" name="imageLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -97,7 +91,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>120</width>
+                <width>0</width>
                 <height>0</height>
                </size>
               </property>
@@ -119,7 +113,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>50</width>
+                <width>63</width>
                 <height>0</height>
                </size>
               </property>
@@ -246,7 +240,7 @@
           <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -254,7 +248,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>60</height>
+              <height>65</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -278,7 +272,7 @@
             <widget class="QRadioButton" name="layerSelector64">
              <property name="geometry">
               <rect>
-               <x>0</x>
+               <x>10</x>
                <y>20</y>
                <width>100</width>
                <height>20</height>
@@ -293,11 +287,17 @@
              <property name="text">
               <string>64 layer</string>
              </property>
+             <property name="iconSize">
+              <size>
+               <width>12</width>
+               <height>12</height>
+              </size>
+             </property>
             </widget>
             <widget class="QRadioButton" name="layerSelector16">
              <property name="geometry">
               <rect>
-               <x>0</x>
+               <x>10</x>
                <y>40</y>
                <width>100</width>
                <height>20</height>
@@ -312,6 +312,12 @@
              <property name="text">
               <string>16 layer</string>
              </property>
+             <property name="iconSize">
+              <size>
+               <width>12</width>
+               <height>12</height>
+              </size>
+             </property>
             </widget>
            </widget>
           </item>
@@ -325,6 +331,18 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="baseSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>play</string>
               </property>
@@ -337,6 +355,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
               </property>
               <property name="text">
                <string>step</string>
@@ -353,10 +377,31 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>20</height>
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="pathLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -371,19 +416,10 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>770</width>
      <height>19</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

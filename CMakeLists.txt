@@ -12,6 +12,7 @@ add_definitions(-std=c++11)
 # Adds in each directory ${CMAKE_CURRENT_SOURCE_DIR} and ${CMAKE_CURRENT_BINARY_DIR}
 # set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set (SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set (RSC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rsc)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
@@ -174,9 +175,9 @@ set (SRC
 qt5_wrap_ui (kitti_player_ui_moc ${SRC_DIR}/MainWindow.ui)
 
 # add Resources
-#qt5_add_resources(SHADER_RSC_ADDED ${SRC_DIR}/resources.qrc)
+qt5_add_resources(breeze_stylesheet ${RSC_DIR}/resources.qrc)
 
-add_executable (kitti_player ${HEADER} ${SRC} ${kitti_player_ui_moc}) #${SHADER_RSC_ADDED}
+add_executable (kitti_player ${HEADER} ${SRC} ${kitti_player_ui_moc} ${breeze_stylesheet})
 target_link_libraries (kitti_player
     Qt5::Widgets
     Qt5::Gui

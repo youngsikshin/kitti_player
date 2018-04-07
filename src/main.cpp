@@ -12,6 +12,13 @@ int main(int argc, char *argv[])
     ros::NodeHandle private_nh("~");
 
     MainWindow w;
+
+    // set stylesheet
+    QFile file(":/BreezeStyleSheet/light.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream stream(&file);
+    w.setStyleSheet(stream.readAll());
+
     w.ros_init(node, private_nh);
     w.show();
 
