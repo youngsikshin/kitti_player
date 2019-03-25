@@ -370,6 +370,13 @@
            </layout>
           </item>
           <item>
+           <widget class="QCheckBox" name="checkBoxBinary">
+            <property name="text">
+             <string>write LiDAR binary</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>

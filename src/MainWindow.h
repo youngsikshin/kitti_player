@@ -2,11 +2,13 @@
 #define MAINWINDOW_H
 
 #include <thread>
+#include <memory>
 #include <opencv2/opencv.hpp>
 #include <QMainWindow>
 #include <QTimer>
 
 #include <ros/ros.h>
+#include <camera_info_manager/camera_info_manager.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <dynamic_reconfigure/server.h>
@@ -65,6 +67,8 @@ private:
 
     QString data_path_;
     QString str_seq_;
+    std::string ros_camera_calib_path_;
+    QString ros_camera_calib_fname_;
     KittiData kitti_data_;
 
     int delay_ms_;
@@ -117,6 +121,10 @@ private:
     image_transport::Publisher right_color_img_pub_;
     image_transport::Publisher depth_map_pub_;
 
+    ros::Publisher left_gray_info_pub_;
+    shared_ptr<camera_info_manager::CameraInfoManager> ptr_left_gray_info_;
+    sensor_msgs::CameraInfo left_gray_info_;
+
     void publish_image(image_transport::Publisher& img_pub, cv::Mat& img);
     void publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc);
 
@@ -125,6 +133,7 @@ private:
 
 private slots:
     void set_pixmap();
+    void on_checkBoxBinary_clicked();
 };
 
 #endif // MAINWINDOW_H

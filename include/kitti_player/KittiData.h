@@ -32,6 +32,7 @@ public:
     QString gt_path() { return path_+"poses/"; }
     QString gt_fname() { return gt_path()+str_seq_+".txt"; }
     QString calib_fname() { return seq_path()+"calib.txt"; }
+    QString ros_camera_calib_fname() { return ros_camera_calib_fname_; }
 
     int velodyne_layer() { return velodyne_layer_; }
     void velodyne_layer(VelodyneLayer layer) { velodyne_layer_ = layer; }
@@ -60,6 +61,7 @@ public:
     Matrix3x4& Tr() { return Tr_; }
 
     void read_velodyne(QString fname);
+    void set_write_bin(bool is_write_bin) { is_write_bin_ = is_write_bin; }
 
     static QImage cv_mat_to_qimage(cv::Mat &src);
 
@@ -77,6 +79,7 @@ private:
     QString velodyne_path_;
     QString gt_fname_;
     QString calib_fname_;
+    QString ros_camera_calib_fname_;
 
     QFileInfoList flist_left_image_;
     QFileInfoList flist_right_image_;
@@ -91,6 +94,7 @@ private:
 
     Matrix3x4 P0_, P1_, P2_, P3_;
     Matrix3x4 Tr_;
+    bool is_write_bin_;
 
 
     // Current Data

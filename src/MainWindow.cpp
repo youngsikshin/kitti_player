@@ -1,6 +1,7 @@
 #include <string>
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include <ros/package.h>
 //#include "odomproblem.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -55,6 +56,9 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
 //    cout << "left_color: " << is_left_color_image_pub_ << endl;
 
     data_path_ = QString::fromStdString(str_path_);
+    std::string pkg_path = ros::package::getPath("kitti_player");
+    ros_camera_calib_path_ = pkg_path+"/calibration/";
+    ptr_left_gray_info_.reset(new camera_info_manager::CameraInfoManager(nh_, str_left_topic_));
 
     initialize();
 
@@ -68,6 +72,8 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
     depth_map_pub_ = it_->advertise(str_depth_map_topic_, 10);
 
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(str_velodyne_topic_, 10);
+
+    left_gray_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>(str_left_topic_+"/camera_info",10);
 
     f_ = boost::bind(&MainWindow::dynamic_parameter_callback, this, _1, _2);
     server_.setCallback(f_);
@@ -107,6 +113,15 @@ void MainWindow::reset_sequence()
 
     str_seq_ = ui->comboBox->currentText();
     kitti_data_.set_sequence(str_seq_);
+
+    ros_camera_calib_fname_ = QString::fromStdString(ros_camera_calib_path_+ kitti_data_.ros_camera_calib_fname().toStdString());
+    qDebug() << ros_camera_calib_fname_;
+
+    if(ptr_left_gray_info_->validateURL("file://"+ros_camera_calib_fname_.toStdString())) {
+//        qDebug() << "validURL";
+        ptr_left_gray_info_->loadCameraInfo("file://"+ros_camera_calib_fname_.toStdString());
+        left_gray_info_ = ptr_left_gray_info_->getCameraInfo();
+    }
 
     index_manager.init();
 
@@ -239,6 +254,11 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img
 //    cv_image.header.stamp = ros::Time::now();
     cv_image.header.stamp = sync_time_;
     cv_image.header.frame_id = "kitti";
+
+    left_gray_info_.header.seq = cv_image.header.seq;
+    left_gray_info_.header.stamp = cv_image.header.stamp;
+    left_gray_info_.header.frame_id = "kitti";
+
     if(img.type() == CV_8UC1)
         cv_image.encoding = sensor_msgs::image_encodings::MONO8;
     else if(img.type() == CV_8UC3)
@@ -249,6 +269,7 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img
     cv_image.image = img;
 
     img_pub.publish(cv_image.toImageMsg());
+    left_gray_info_pub_.publish(left_gray_info_);
 }
 
 void MainWindow::publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc)
@@ -329,4 +350,12 @@ void MainWindow::on_startButton_clicked()
 void MainWindow::on_stepButton_clicked()
 {
     load_data();
+}
+
+void MainWindow::on_checkBoxBinary_clicked()
+{
+    if(ui->checkBoxBinary->checkState())
+        kitti_data_.set_write_bin(true);
+    else
+        kitti_data_.set_write_bin(false);
 }

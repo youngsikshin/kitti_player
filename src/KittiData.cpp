@@ -12,6 +12,7 @@ using namespace std;
 KittiData::KittiData()
 {
     str_seq_ = "00";
+    is_write_bin_ = false;
 }
 
 KittiData::KittiData(QString path)
@@ -19,7 +20,7 @@ KittiData::KittiData(QString path)
 //    cerr << "[KittiData]\t Called KittiData(QString path)" << endl;
     path_ = path;
     str_seq_ = "00";
-
+    is_write_bin_ = false;
 }
 
 KittiData::~KittiData()
@@ -105,6 +106,16 @@ void KittiData::set_sequence(QString str_seq)
     P3_ = vec_calib_matrix[3];
     Tr_ = vec_calib_matrix[4];
 
+    if(!str_seq_.compare("00") || !str_seq_.compare("01") || !str_seq_.compare("02"))
+        ros_camera_calib_fname_ = "KITTI00-02.yaml";
+    else if(!str_seq_.compare("03"))
+        ros_camera_calib_fname_ = "KITTI03.yaml";
+    else if(!str_seq_.compare("04") || !str_seq_.compare("05") || !str_seq_.compare("06") || !str_seq_.compare("07") || !str_seq_.compare("08") || !str_seq_.compare("09") || !str_seq_.compare("10") || !str_seq_.compare("11") || !str_seq_.compare("12"))
+        ros_camera_calib_fname_ = "KITTI04-12.yaml";
+    else
+        ros_camera_calib_fname_ = "KITTI00-02.yaml";
+
+    qDebug() << ros_camera_calib_fname_;
 }
 
 QImage KittiData::cv_mat_to_qimage(cv::Mat &src) {
@@ -155,6 +166,20 @@ void KittiData::print_filelist(const QFileInfoList flist)
 void KittiData::read_velodyne(QString fname)
 {
     QFile velodyne_file(fname);
+
+    QStringList split_fname = fname.split('/');
+    QString out_fname(split_fname.last());
+    QFile out_file(out_fname);
+    QDataStream out;
+
+    if(is_write_bin_) {
+        qDebug() << out_fname;
+        out_file.open(QIODevice::WriteOnly);
+        out.setDevice(&out_file);
+        out.setByteOrder(QDataStream::LittleEndian);
+        out.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    }
+
     if (!velodyne_file.open(QIODevice::ReadOnly))
         return;
 
@@ -185,8 +210,14 @@ void KittiData::read_velodyne(QString fname)
             }
             else {
                 if((azimuth - prev_azimuth) < -0.2) {
-                    if(cnt%8 == 0) {
+                    if(cnt%4 == 0) {
                         velodyne_data_  += single_layer;
+
+                        if(is_write_bin_) {
+                            for(auto point:single_layer) {
+                                out << point.x << point.y << point.z << point.intensity;
+                            }
+                        }
                     }
                     cnt++;
                     single_layer.clear();
@@ -217,6 +248,10 @@ void KittiData::read_velodyne(QString fname)
         velodyne_data_  += single_layer;
     }
 
+
+    if(is_write_bin_) {
+        out_file.close();
+    }
     single_layer.clear();
 
 }

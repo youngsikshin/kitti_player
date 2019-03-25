@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   message_generation
   dynamic_reconfigure
+  camera_info_manager
 )
 
 find_package (Qt5Widgets)
@@ -138,6 +139,7 @@ catkin_package(
     pcl_conversions
     image_transport
     cv_bridge
+    camera_info_manager
 #  DEPENDS system_lib
 )
 

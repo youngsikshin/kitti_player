@@ -1,0 +1,20 @@
+image_width: 1226
+image_height: 370
+camera_name: /kitti/left_image
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [707.0911865234375, 0, 601.8873291015625, 0, 707.0911865234375, 183.1103973388672, 0, 0, 1]
+distortion_model: ''
+distortion_coefficients:
+  rows: 0
+  cols: 0
+  data: []
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [707.0911865234375, 0, 601.8873291015625, 0, 0, 707.0911865234375, 183.1103973388672, 0, 0, 0, 1, 0]
