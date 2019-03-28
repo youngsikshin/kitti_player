@@ -33,6 +33,7 @@ public:
     QString gt_fname() { return gt_path()+str_seq_+".txt"; }
     QString calib_fname() { return seq_path()+"calib.txt"; }
     QString ros_camera_calib_fname() { return ros_camera_calib_fname_; }
+    QString ros_color_camera_calib_fname() { return ros_color_camera_calib_fname_; }
 
     int velodyne_layer() { return velodyne_layer_; }
     void velodyne_layer(VelodyneLayer layer) { velodyne_layer_ = layer; }
@@ -80,6 +81,7 @@ private:
     QString gt_fname_;
     QString calib_fname_;
     QString ros_camera_calib_fname_;
+    QString ros_color_camera_calib_fname_;
 
     QFileInfoList flist_left_image_;
     QFileInfoList flist_right_image_;
@@ -94,7 +96,11 @@ private:
 
     Matrix3x4 P0_, P1_, P2_, P3_;
     Matrix3x4 Tr_;
+
     bool is_write_bin_;
+
+    Eigen::Vector3d translation_;
+    Eigen::Quaterniond quat_;
 
 
     // Current Data

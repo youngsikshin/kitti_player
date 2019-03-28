@@ -45,6 +45,7 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
     private_nh.param("right_color_topic", str_right_color_topic_, std::string("/kitti/right_color_image"));
     private_nh.param("velodyne_topic", str_velodyne_topic_, std::string("/kitti/velodyne_points"));
     private_nh.param("depth_map_topic", str_depth_map_topic_, std::string("/kitti/depth_map"));
+    private_nh.param("color_label_topic", str_color_label_topic_, std::string("/sensor/camera/color_labels/left"));
 
     private_nh.param("left_image_pub", is_left_image_pub_, true);
     private_nh.param("right_image_pub", is_right_image_pub_, false);
@@ -59,21 +60,24 @@ void MainWindow::ros_init(ros::NodeHandle node, ros::NodeHandle private_nh)
     std::string pkg_path = ros::package::getPath("kitti_player");
     ros_camera_calib_path_ = pkg_path+"/calibration/";
     ptr_left_gray_info_.reset(new camera_info_manager::CameraInfoManager(nh_, str_left_topic_));
+//    ptr_left_color_info_.reset(new camera_info_manager::CameraInfoManager(nh_, str_color_label_topic_));
 
     initialize();
 
     this->nh_ = node;
 
     it_ = new image_transport::ImageTransport(nh_);
-    left_img_pub_ = it_->advertise(str_left_topic_, 10);
-    right_img_pub_ = it_->advertise(str_right_topic_, 10);
-    left_color_img_pub_ = it_->advertise(str_left_color_topic_, 10);
-    right_color_img_pub_ = it_->advertise(str_right_color_topic_, 10);
+    left_img_pub_ = it_->advertise(str_left_topic_+"/image_rect", 10);
+    right_img_pub_ = it_->advertise(str_right_topic_+"/image_rect", 10);
+    left_color_img_pub_ = it_->advertise(str_left_color_topic_+"/image_rect", 10);
+    right_color_img_pub_ = it_->advertise(str_right_color_topic_+"/image_rect", 10);
+    color_label_pub_ = it_->advertise(str_color_label_topic_+"/image_rect", 10);
     depth_map_pub_ = it_->advertise(str_depth_map_topic_, 10);
 
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(str_velodyne_topic_, 10);
 
     left_gray_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>(str_left_topic_+"/camera_info",10);
+    color_label_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>(str_color_label_topic_+"/camera_info",10);
 
     f_ = boost::bind(&MainWindow::dynamic_parameter_callback, this, _1, _2);
     server_.setCallback(f_);
@@ -115,12 +119,19 @@ void MainWindow::reset_sequence()
     kitti_data_.set_sequence(str_seq_);
 
     ros_camera_calib_fname_ = QString::fromStdString(ros_camera_calib_path_+ kitti_data_.ros_camera_calib_fname().toStdString());
+    ros_color_camera_calib_fname_ = QString::fromStdString(ros_camera_calib_path_+ kitti_data_.ros_color_camera_calib_fname().toStdString());
     qDebug() << ros_camera_calib_fname_;
 
     if(ptr_left_gray_info_->validateURL("file://"+ros_camera_calib_fname_.toStdString())) {
 //        qDebug() << "validURL";
         ptr_left_gray_info_->loadCameraInfo("file://"+ros_camera_calib_fname_.toStdString());
+
         left_gray_info_ = ptr_left_gray_info_->getCameraInfo();
+    }
+
+    if(ptr_left_gray_info_->validateURL("file://"+ros_camera_calib_fname_.toStdString())) {
+        ptr_left_gray_info_->loadCameraInfo("file://"+ros_color_camera_calib_fname_.toStdString());
+        left_color_info_ = ptr_left_gray_info_->getCameraInfo();
     }
 
     index_manager.init();
@@ -141,7 +152,8 @@ void MainWindow::load_data()
     // Setting data and Publish
     if(is_left_image_pub_) {
         kitti_data_.set_left_image(index_manager.index());
-        publish_image(left_img_pub_, kitti_data_.left_image());
+//        publish_image(left_img_pub_, kitti_data_.left_image());
+        publish_image(left_img_pub_,kitti_data_.left_image(), str_left_topic_);
     }
 
     if(is_right_image_pub_) {
@@ -162,6 +174,8 @@ void MainWindow::load_data()
         kitti_data_.set_velodyne(index_manager.index());
         publish_velodyne(pc_pub_, kitti_data_.velodyne_data());
     }
+
+    publish_image(color_label_pub_, kitti_data_.left_image(), str_color_label_topic_);
 
     // progress slider
     ui->dataProgress->setValue(index_manager.index());
@@ -253,11 +267,15 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img
     cv_image.header.seq = index_manager.index();
 //    cv_image.header.stamp = ros::Time::now();
     cv_image.header.stamp = sync_time_;
-    cv_image.header.frame_id = "kitti";
+    cv_image.header.frame_id = "/sensor/camera/grayscale/left";
 
     left_gray_info_.header.seq = cv_image.header.seq;
     left_gray_info_.header.stamp = cv_image.header.stamp;
-    left_gray_info_.header.frame_id = "kitti";
+    left_gray_info_.header.frame_id = "/sensor/camera/grayscale/left";
+
+    left_color_info_.header.seq = cv_image.header.seq;
+    left_color_info_.header.stamp = cv_image.header.stamp;
+    left_color_info_.header.frame_id = "/sensor/camera/color/left";
 
     if(img.type() == CV_8UC1)
         cv_image.encoding = sensor_msgs::image_encodings::MONO8;
@@ -269,7 +287,40 @@ void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img
     cv_image.image = img;
 
     img_pub.publish(cv_image.toImageMsg());
+    color_label_pub_.publish(cv_image.toImageMsg());
     left_gray_info_pub_.publish(left_gray_info_);
+    color_label_info_pub_.publish(left_color_info_);
+}
+
+void MainWindow::publish_image(image_transport::Publisher& img_pub, cv::Mat& img, std::string frame_id)
+{
+  cv_bridge::CvImage cv_image;
+  cv_image.header.seq = index_manager.index();
+//    cv_image.header.stamp = ros::Time::now();
+  cv_image.header.stamp = sync_time_;
+  cv_image.header.frame_id = frame_id;
+
+  left_gray_info_.header.seq = cv_image.header.seq;
+  left_gray_info_.header.stamp = cv_image.header.stamp;
+  left_gray_info_.header.frame_id = "/sensor/camera/grayscale/left";
+
+  left_color_info_.header.seq = cv_image.header.seq;
+  left_color_info_.header.stamp = cv_image.header.stamp;
+  left_color_info_.header.frame_id = "/sensor/camera/color/left";
+
+  if(img.type() == CV_8UC1)
+      cv_image.encoding = sensor_msgs::image_encodings::MONO8;
+  else if(img.type() == CV_8UC3)
+      cv_image.encoding = sensor_msgs::image_encodings::BGR8;
+  else if(img.type() == CV_32F)
+      cv_image.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+
+  cv_image.image = img;
+
+  img_pub.publish(cv_image.toImageMsg());
+//  color_label_pub_.publish(cv_image.toImageMsg());
+  left_gray_info_pub_.publish(left_gray_info_);
+  color_label_info_pub_.publish(left_color_info_);
 }
 
 void MainWindow::publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc)
@@ -280,7 +331,7 @@ void MainWindow::publish_velodyne(ros::Publisher& pc_pub, PointCloud& pc)
     out_pc.header.seq = index_manager.index();
 //    out_pc.header.stamp = ros::Time::now();
     out_pc.header.stamp = sync_time_;
-    out_pc.header.frame_id = "velodyne";
+    out_pc.header.frame_id = "/sensor/velodyne";
     pc_pub_.publish(out_pc);
 }
 

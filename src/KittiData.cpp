@@ -106,16 +106,38 @@ void KittiData::set_sequence(QString str_seq)
     P3_ = vec_calib_matrix[3];
     Tr_ = vec_calib_matrix[4];
 
-    if(!str_seq_.compare("00") || !str_seq_.compare("01") || !str_seq_.compare("02"))
+    std::cout << Tr_.matrix() << std::endl;
+    std::cout <<Tr_.block<3,3>(0,0) << std::endl;
+
+    Eigen::Quaterniond quat(Tr_.block<3,3>(0,0));
+    quat_=quat;
+    translation_ << Tr_(0,3) , Tr_(1,3) , Tr_(2,3);
+
+    std::cout << translation_.matrix() << std::endl;
+    std::cout << quat_.x() << std::endl;
+    std::cout << quat_.y() << std::endl;
+    std::cout << quat_.z() << std::endl;
+    std::cout << quat_.w() << std::endl;
+
+    if(!str_seq_.compare("00") || !str_seq_.compare("01") || !str_seq_.compare("02")) {
         ros_camera_calib_fname_ = "KITTI00-02.yaml";
-    else if(!str_seq_.compare("03"))
+        ros_color_camera_calib_fname_ = "KITTI00-02_color.yaml";
+    }
+    else if(!str_seq_.compare("03")) {
         ros_camera_calib_fname_ = "KITTI03.yaml";
-    else if(!str_seq_.compare("04") || !str_seq_.compare("05") || !str_seq_.compare("06") || !str_seq_.compare("07") || !str_seq_.compare("08") || !str_seq_.compare("09") || !str_seq_.compare("10") || !str_seq_.compare("11") || !str_seq_.compare("12"))
+        ros_color_camera_calib_fname_ = "KITTI03_color.yaml";
+    }
+    else if(!str_seq_.compare("04") || !str_seq_.compare("05") || !str_seq_.compare("06") || !str_seq_.compare("07") || !str_seq_.compare("08") || !str_seq_.compare("09") || !str_seq_.compare("10") || !str_seq_.compare("11") || !str_seq_.compare("12")) {
         ros_camera_calib_fname_ = "KITTI04-12.yaml";
-    else
+        ros_color_camera_calib_fname_ = "KITTI04-12_color.yaml";
+    }
+    else {
         ros_camera_calib_fname_ = "KITTI00-02.yaml";
+        ros_color_camera_calib_fname_ = "KITTI00-02_color.yaml";
+    }
 
     qDebug() << ros_camera_calib_fname_;
+
 }
 
 QImage KittiData::cv_mat_to_qimage(cv::Mat &src) {

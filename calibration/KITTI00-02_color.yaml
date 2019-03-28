@@ -1,6 +1,6 @@
 image_width: 1226
 image_height: 370
-camera_name: /sensor/camera/grayscale/left
+camera_name: /sensor/camera/color/left
 camera_matrix:
   rows: 3
   cols: 3

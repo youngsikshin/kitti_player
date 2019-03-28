@@ -1,15 +1,15 @@
 image_width: 1226
 image_height: 370
-camera_name: grayscale
+camera_name: /sensor/camera/grayscale/left
 camera_matrix:
   rows: 3
   cols: 3
   data: [707.0911865234375, 0, 601.8873291015625, 0, 707.0911865234375, 183.1103973388672, 0, 0, 1]
-distortion_model: plumb_bob
+distortion_model: ''
 distortion_coefficients:
-  rows: 1
-  cols: 5
-  data: [0, 0, 0, 0, 0]
+    rows: 0
+    cols: 0
+    data: []
 rectification_matrix:
   rows: 3
   cols: 3
