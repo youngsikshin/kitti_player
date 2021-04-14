@@ -175,6 +175,12 @@ void MainWindow::load_data()
         publish_velodyne(pc_pub_, kitti_data_.velodyne_data());
     }
 
+    cv::namedWindow("spherical");
+    cv::Mat normalized;
+    cv::normalize(kitti_data_.spherical_velodyne(), normalized, 0, 255, cv::NORM_MINMAX, CV_8UC1);
+    cv::imshow("spherical", normalized);
+    cv::waitKey(50);
+
     publish_image(color_label_pub_, kitti_data_.left_image(), str_color_label_topic_);
 
     // progress slider

@@ -7,6 +7,7 @@
 #include <QtOpenGL>
 #include <QMatrix4x4>
 #include <vector>
+#include <math.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -66,6 +67,8 @@ public:
 
     static QImage cv_mat_to_qimage(cv::Mat &src);
 
+    cv::Mat& spherical_velodyne() { return spherical_velodyne_; }
+
 private:
     QString path_;
     QString str_seq_;
@@ -113,6 +116,9 @@ private:
 
     QFileInfoList get_filelist(const QString path, const QString name_filter);
     void print_filelist(const QFileInfoList flist);
+
+    // velodyne grandslam
+    cv::Mat spherical_velodyne_;
 
 };
 

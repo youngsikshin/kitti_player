@@ -10,6 +10,7 @@
 using namespace std;
 
 KittiData::KittiData()
+  :  spherical_velodyne_(50, 900, CV_32FC1)
 {
     str_seq_ = "00";
     is_write_bin_ = false;
@@ -215,6 +216,8 @@ void KittiData::read_velodyne(QString fname)
 
     PointCloud single_layer;
 
+    spherical_velodyne_ = cv::Mat::zeros(64, 900, CV_32FC1);
+
     while(!in.atEnd()) {
         in.setByteOrder(QDataStream::LittleEndian);
         in.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -261,6 +264,25 @@ void KittiData::read_velodyne(QString fname)
             point.y = y;
             point.z = z;
             point.intensity = r;
+
+            float u = 0.5* (1.0-atan2(point.y, point.x)/M_PI)*900.0;
+
+            float rr = sqrt(x*x+y*y+z*z);
+//            float v = (1.0-(asin(z/r)+3.0*M_PI/180.0)/(28.0*M_PI/180.0))*64.0;
+            float v = fabs(1 - (asin(z/rr)*180.0/M_PI+25.0)/29.0)*50.0;
+
+            int iu = static_cast<int>(u);
+            int iv = static_cast<int>(v);
+
+            if (iv>=0 && iv<50 && iu >=0 && iv < 900)
+            {
+                spherical_velodyne_.at<float>(iv, iu) = r;
+            }
+            else
+            {
+                cout << iu << ", " << iv << ", " << asin(z/r)*180.0/M_PI << endl;
+            }
+
 
             velodyne_data_.push_back(point);
         }
