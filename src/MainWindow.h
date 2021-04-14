@@ -67,9 +67,6 @@ private:
 
     QString data_path_;
     QString str_seq_;
-    std::string ros_camera_calib_path_;
-    QString ros_camera_calib_fname_;
-    QString ros_color_camera_calib_fname_;
     KittiData kitti_data_;
 
     int delay_ms_;
@@ -78,13 +75,6 @@ private:
     ///Pointer to dynamic reconfigure service srv_
     std::thread spin_thread_;
     void spinner() { ros::spin(); }
-
-    dynamic_reconfigure::Server<kitti_player::kitti_playerConfig> server_;
-    dynamic_reconfigure::Server<kitti_player::kitti_playerConfig>::CallbackType f_;
-    kitti_player::kitti_playerConfig config_;
-
-    void dynamic_parameter_callback(kitti_player::kitti_playerConfig &config, uint32_t level);
-
 
     void initialize();
     void reset_sequence();
@@ -103,15 +93,12 @@ private:
     std::string str_left_color_topic_;
     std::string str_right_color_topic_;
     std::string str_velodyne_topic_;
-    std::string str_depth_map_topic_;
-    std::string str_color_label_topic_;
 
     bool is_left_image_pub_;
     bool is_right_image_pub_;
     bool is_left_color_image_pub_;
     bool is_right_color_image_pub_;
     bool is_velodyne_pub_;
-    bool is_depth_map_pub_;
 
     ros::NodeHandle nh_;
     ros::Publisher pc_pub_;
@@ -121,15 +108,6 @@ private:
     image_transport::Publisher right_img_pub_;
     image_transport::Publisher left_color_img_pub_;
     image_transport::Publisher right_color_img_pub_;
-    image_transport::Publisher depth_map_pub_;
-    image_transport::Publisher color_label_pub_;
-
-    ros::Publisher left_gray_info_pub_;
-    ros::Publisher color_label_info_pub_;
-    shared_ptr<camera_info_manager::CameraInfoManager> ptr_left_gray_info_;
-    shared_ptr<camera_info_manager::CameraInfoManager> ptr_left_color_info_;
-    sensor_msgs::CameraInfo left_gray_info_;
-    sensor_msgs::CameraInfo left_color_info_;
 
     void publish_image(image_transport::Publisher& img_pub, cv::Mat& img);
     void publish_image(image_transport::Publisher& img_pub, cv::Mat& img, std::string frame_id);
